@@ -11,6 +11,8 @@ import com.usta.models.usuario.UsuarioImplDAO;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -20,6 +22,22 @@ public class UsuarioController {
 
 
     UsuarioImplDAO usuariosDAO = new UsuarioImplDAO();
+
+    @FXML
+    private ComboBox<Usuario> usuariosCBX;
+    //################ para los botones ##############
+    @FXML
+    private Button agregarBtn;
+    @FXML
+    private Button editarBtn;
+    @FXML
+    private Button eliminarBtn;
+    @FXML
+    private Button cancelarBtn;
+    
+    //################ fin los botones ##############
+
+
 
     //################ para entrada de datos ##############
     @FXML
@@ -63,6 +81,8 @@ public class UsuarioController {
             System.err.println("Error al agregar Usuario!");
         }
 
+        usuariosCBX.setItems(usuariosDataList);
+        //usuariosCBX.getSelectionModel().getSelectedItem().getId();
     }
 
     @FXML
@@ -89,32 +109,70 @@ public class UsuarioController {
         }
     }
 
-    public void listarUsuarios() throws SQLException {
-        try {
-            List<Usuario> usuarios = usuariosDAO.getAll();
-            for (Usuario usuario : usuarios) {
-                System.out.println(usuario);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            System.err.println("Error al listar usuarios!");
-        }
-    }
 
-    public void eliminarUsuario(int id) throws SQLException {
+    @FXML
+    public void seleccionarUsuario(){
+        Usuario usuario= usuariosTable.getSelectionModel().getSelectedItem();
+
+        agregarBtn.setVisible(false);
+        editarBtn.setVisible(true);
+        eliminarBtn.setVisible(true);
+        cancelarBtn.setVisible(true);
+        txtDocumento.setText(usuario.getDocumento());
+        txtDocumento.setEditable(false);
+        txtNombres.setText(usuario.getNombres());
+        txtApellidos.setText(usuario.getApellidos());
+        txtCorreo.setText(usuario.getCorreo());
+
+    }
+    @FXML
+    public void cancelar()  {
+        agregarBtn.setVisible(true);
+        editarBtn.setVisible(false);
+        eliminarBtn.setVisible(false);
+        cancelarBtn.setVisible(false);
+        
+
+        txtDocumento.setText("");
+        txtDocumento.setEditable(true);
+        txtNombres.setText("");
+        txtApellidos.setText("");
+        txtCorreo.setText("");
+
+    }
+    @FXML
+    public void eliminarUsuario() throws SQLException {
+        Usuario usuario= usuariosTable.getSelectionModel().getSelectedItem();
+
         try {
-            usuariosDAO.delete(id);
+            usuariosDAO.delete(usuario.getId());
+            usuariosDataList.remove(usuario);
+            usuariosTable.setItems(usuariosDataList);
             System.out.println("Usuario eliminado con éxito.");
+            cancelar();
         } catch (SQLException e) {
             e.printStackTrace();
             System.err.println("Error al eliminar usuario!");
         }
     }
+    @FXML
+    public void editarUsuario() throws SQLException {
+        Usuario usuario= usuariosTable.getSelectionModel().getSelectedItem();
 
-    public void actualizarUsuario(Usuario usuario) throws SQLException {
+        usuariosDataList.remove(usuario);
+        usuariosTable.setItems(usuariosDataList);
+        usuario= new Usuario(txtDocumento.getText(),
+        txtNombres.getText(),
+        txtApellidos.getText(),
+        txtCorreo.getText());
+
         try {
             usuariosDAO.update(usuario);
+            usuariosDataList.add(usuario);
+            usuariosTable.setItems(usuariosDataList);
             System.out.println("Usuario actualizado con éxito.");
+            cancelar();
+
         } catch (SQLException e) {
             e.printStackTrace();
             System.err.println("Error al actualizar usuario!");
@@ -124,6 +182,7 @@ public class UsuarioController {
     public void obtenerUsuarioPorId(int id) throws SQLException {
         try {
             Usuario usuario = usuariosDAO.getById(id);
+            
             if (usuario != null) {
                 System.out.println(usuario);
             } else {

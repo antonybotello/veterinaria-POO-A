@@ -54,8 +54,7 @@ public class Usuario {
     }
     @Override
     public String toString() {
-        return "Usuario [id=" + id + ", documento=" + documento + ", nombres=" + nombres + ", apellidos=" + apellidos
-                + ", correo=" + correo + "]";
+        return  nombres + " " + apellidos;
     }
 
     
