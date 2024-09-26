@@ -18,6 +18,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.HBox;
 
 public class MascotaController {
 
@@ -36,11 +37,15 @@ public class MascotaController {
     
     //########################## fin botones ##############
 
-
-
+    @FXML
+    private HBox perroPanel;
+    @FXML
+    private HBox gatoPanel;
+    @FXML
+    private HBox especiePanel;
     //########################## para entrada de datos ##############
     @FXML
-    private TextField especieField;
+    private ComboBox<String> especieCbx;
     @FXML
     private TextField nombreField;
     @FXML
@@ -68,8 +73,22 @@ public class MascotaController {
     //########################## fintabla ##############
 
     @FXML
+    public void selectorEspecieGato(){
+            especiePanel.setVisible(false);
+            gatoPanel.setVisible(true);
+
+    }
+    @FXML
+    public void selectorEspeciePerro(){
+            especiePanel.setVisible(false);
+            perroPanel.setVisible(true);
+            
+    }
+
+
+    @FXML
     public void initialize(){
-       
+       especieCbx.getItems().setAll("perro","Gato");
         nombreCol.setCellValueFactory(new PropertyValueFactory<>("nombre"));
         especieCol.setCellValueFactory(new PropertyValueFactory<>("especie"));
         cuidadorCol.setCellValueFactory(new PropertyValueFactory<>("cuidador"));
@@ -88,7 +107,7 @@ public class MascotaController {
     public void agregarMascota(){
        
         String nombre= nombreField.getText();
-        String especie= especieField.getText();
+        String especie= especieCbx.getSelectionModel().getSelectedItem();
         Usuario cuidador= usuariosCbx.getSelectionModel().getSelectedItem();
 
         Mascota nuevoMascota= new Mascota(nombre,especie,cuidador);
@@ -105,7 +124,7 @@ public class MascotaController {
     @FXML
     public void editarMascota(){
         Mascota mascota= mascotasTable.getSelectionModel().getSelectedItem();
-        String especie= especieField.getText();
+        String especie= especieCbx.getSelectionModel().getSelectedItem();
         String nombre= nombreField.getText();
         Usuario cuidador= usuariosCbx.getSelectionModel().getSelectedItem();
     
@@ -138,8 +157,7 @@ public class MascotaController {
     @FXML
     public void seleccionarMascota(){
         Mascota mascota= mascotasTable.getSelectionModel().getSelectedItem();
-        especieField.setText(mascota.getEspecie());
-        especieField.setEditable(false);
+        especieCbx.getSelectionModel().select(mascota.getEspecie());
         nombreField.setText(mascota.getNombre());
         usuariosCbx.getSelectionModel().select(mascota.getCuidador());
         agregarBtn.setVisible(false);
@@ -162,10 +180,17 @@ public class MascotaController {
     private void switchToUsuario() throws IOException {
         App.setRoot("usuario");
     }
+
+
     @FXML
     public void limpiarCampos(){
-        especieField.setText("");
-        especieField.setEditable(true);
+        especiePanel.setVisible(true);
+        gatoPanel.setVisible(false);
+        perroPanel.setVisible(false);
+
+
+        especieCbx.getSelectionModel().clearSelection();
+        
         nombreField.setText("");
         usuariosCbx.getSelectionModel().clearSelection();
         agregarBtn.setVisible(true);
