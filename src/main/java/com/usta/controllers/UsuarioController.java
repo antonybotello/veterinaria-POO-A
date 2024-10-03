@@ -9,8 +9,10 @@ import com.usta.models.usuario.UsuarioImplDAO;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -18,8 +20,8 @@ import javafx.scene.control.cell.PropertyValueFactory;
 
 public class UsuarioController {
 
-    UsuarioImplDAO usuarioDao= new UsuarioImplDAO();
-    //########################## para botones ##############
+    UsuarioImplDAO usuarioDao = new UsuarioImplDAO();
+    // ########################## para botones ##############
     @FXML
     private Button agregarBtn;
     @FXML
@@ -28,12 +30,10 @@ public class UsuarioController {
     private Button eliminarBtn;
     @FXML
     private Button cancelarBtn;
-    
-    //########################## fin botones ##############
 
+    // ########################## fin botones ##############
 
-
-    //########################## para entrada de datos ##############
+    // ########################## para entrada de datos ##############
     @FXML
     private TextField documentoField;
     @FXML
@@ -42,9 +42,9 @@ public class UsuarioController {
     private TextField apellidosField;
     @FXML
     private TextField correoField;
-    //########################## fin entrada de datos ##############
+    // ########################## fin entrada de datos ##############
 
-    //########################## para la tabla ##############
+    // ########################## para la tabla ##############
     @FXML
     private TableView<Usuario> usuariosTable; // le pedimos que asocie el objeto del fxml a esta variable
     @FXML
@@ -58,11 +58,24 @@ public class UsuarioController {
 
     private ObservableList<Usuario> usuariosDataList = FXCollections.observableArrayList();
 
-    //########################## fintabla ##############
+    // ########################## fintabla ##############
 
     @FXML
-    public void initialize(){
-       
+    private TextField filtroField;
+    private FilteredList<Usuario> usuariosFiltrados; // Lista filtrada de usuairos
+
+    @FXML
+    private CheckBox documentoChk;
+    @FXML
+    private CheckBox nombresChk;
+    @FXML
+    private CheckBox apellidosChk;
+    @FXML
+    private CheckBox correoChk;
+
+    @FXML
+    public void initialize() {
+
         documentoCol.setCellValueFactory(new PropertyValueFactory<>("documento"));
         nombresCol.setCellValueFactory(new PropertyValueFactory<>("nombres"));
         apellidosCol.setCellValueFactory(new PropertyValueFactory<>("apellidos"));
@@ -77,13 +90,42 @@ public class UsuarioController {
     }
 
     @FXML
-    public void agregarUsuario(){
-        String documento= documentoField.getText();
-        String nombres= nombresField.getText();
-        String apellidos= apellidosField.getText();
-        String correo= correoField.getText();
-    
-        Usuario nuevoUsuario= new Usuario(documento, nombres, apellidos, correo);
+    public void filtrarUsuarios() {
+
+        String filtroTexto = filtroField.getText().toLowerCase();
+        if (usuariosFiltrados == null) {
+            usuariosFiltrados = new FilteredList<>(usuariosDataList, p -> true);
+        }
+        usuariosFiltrados.setPredicate(usuario -> {
+            // Si el filtro está vacío, mostrar todos los elementos
+            if (filtroTexto == null || filtroTexto.isEmpty()) {
+                return true;
+            }
+            boolean documentoMatch = documentoChk.isSelected()
+                    && usuario.getDocumento().toLowerCase().contains(filtroTexto);
+            boolean nombresMatch = nombresChk.isSelected()
+                    && usuario.getNombres().toLowerCase().contains(filtroTexto);
+            boolean apellidosMatch = apellidosChk.isSelected()
+                    && usuario.getApellidos().toLowerCase().contains(filtroTexto);
+            boolean correoMatch = correoChk.isSelected()
+                    && usuario.getCorreo().toLowerCase().contains(filtroTexto);
+
+
+            // Verificar si el autor coincide con alguno de los campos seleccionados
+            return documentoMatch || nombresMatch || apellidosMatch || correoMatch ;
+        });
+
+        usuariosTable.setItems(usuariosFiltrados);
+    }
+
+    @FXML
+    public void agregarUsuario() {
+        String documento = documentoField.getText();
+        String nombres = nombresField.getText();
+        String apellidos = apellidosField.getText();
+        String correo = correoField.getText();
+
+        Usuario nuevoUsuario = new Usuario(documento, nombres, apellidos, correo);
         try {
             usuarioDao.add(nuevoUsuario);
         } catch (SQLException e) {
@@ -94,15 +136,16 @@ public class UsuarioController {
         usuariosTable.setItems(usuariosDataList);
         limpiarCampos();
     }
+
     @FXML
-    public void editarUsuario(){
-        Usuario usuario= usuariosTable.getSelectionModel().getSelectedItem();
-        String documento= documentoField.getText();
-        String nombres= nombresField.getText();
-        String apellidos= apellidosField.getText();
-        String correo= correoField.getText();
-    
-        Usuario usuarioEditado= new Usuario(usuario.getId(),documento, nombres, apellidos, correo);
+    public void editarUsuario() {
+        Usuario usuario = usuariosTable.getSelectionModel().getSelectedItem();
+        String documento = documentoField.getText();
+        String nombres = nombresField.getText();
+        String apellidos = apellidosField.getText();
+        String correo = correoField.getText();
+
+        Usuario usuarioEditado = new Usuario(usuario.getId(), documento, nombres, apellidos, correo);
         try {
             usuarioDao.update(usuarioEditado);
             usuariosDataList.remove(usuariosTable.getSelectionModel().getSelectedItem());
@@ -114,9 +157,10 @@ public class UsuarioController {
         usuariosTable.setItems(usuariosDataList);
         limpiarCampos();
     }
+
     @FXML
-    public void eliminarUsuario(){
-        Usuario usuario= usuariosTable.getSelectionModel().getSelectedItem();
+    public void eliminarUsuario() {
+        Usuario usuario = usuariosTable.getSelectionModel().getSelectedItem();
         try {
             usuarioDao.delete(usuario.getId());
             usuariosDataList.remove(usuario);
@@ -129,8 +173,8 @@ public class UsuarioController {
     }
 
     @FXML
-    public void seleccionarUsuario(){
-        Usuario usuario= usuariosTable.getSelectionModel().getSelectedItem();
+    public void seleccionarUsuario() {
+        Usuario usuario = usuariosTable.getSelectionModel().getSelectedItem();
         documentoField.setText(usuario.getDocumento());
         documentoField.setEditable(false);
         nombresField.setText(usuario.getNombres());
@@ -141,23 +185,25 @@ public class UsuarioController {
         eliminarBtn.setVisible(true);
         cancelarBtn.setVisible(true);
 
-
-
     }
+
     @FXML
     private void switchToMenu() throws IOException {
         App.setRoot("primary");
     }
+
     @FXML
     private void switchToMascota() throws IOException {
         App.setRoot("mascota");
     }
+
     @FXML
     private void switchToUsuario() throws IOException {
         App.setRoot("usuario");
     }
+
     @FXML
-    public void limpiarCampos(){
+    public void limpiarCampos() {
         documentoField.setText("");
         documentoField.setEditable(true);
         nombresField.setText("");
