@@ -25,13 +25,19 @@ public class UsuarioImplDAO implements GenericDAO<Usuario> {
     @Override
     public void add(Usuario obj) throws SQLException {
 
-        String query = "INSERT INTO usuarios (documento,nombres,apellidos,correo)" +
-                "VALUES(?,?,?,?)";
+        String query = "INSERT INTO usuarios (documento,nombres,apellidos,correo,clave)" +
+                "VALUES(?,?,?,?,?)";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setString(1, obj.getDocumento());
             stmt.setString(2, obj.getNombres());
             stmt.setString(3, obj.getApellidos());
             stmt.setString(4, obj.getCorreo());
+            stmt.setString(5, (
+                obj.getNombres().charAt(0)+
+                obj.getApellidos().charAt(0)+
+                obj.getDocumento()+
+                "#"));
+
             stmt.executeUpdate();
             Ventana ventana= new Ventana(
                 "Exito!",
@@ -92,13 +98,30 @@ public class UsuarioImplDAO implements GenericDAO<Usuario> {
                     usuario.setNombres(rs.getString("nombres"));
                     usuario.setApellidos(rs.getString("apellidos"));
                     usuario.setCorreo(rs.getString("correo"));
+
                     return usuario;
                 }
             }
         }
         return null;
     }
+ 
+    public Boolean isUsuario(String doc, String pass) throws SQLException {
+        String query = "SELECT * FROM usuarios WHERE documento=?,clave=?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, doc);
+            stmt.setString(2, pass);
 
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    
+
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
     @Override
     public void update(Usuario obj) throws SQLException {
         String query = "UPDATE Usuarios SET nombres=?, apellidos=?, correo=? WHERE usuarioId=?";
