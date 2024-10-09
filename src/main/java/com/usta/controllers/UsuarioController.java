@@ -6,11 +6,13 @@ import java.sql.SQLException;
 import com.usta.App;
 import com.usta.models.usuario.Usuario;
 import com.usta.models.usuario.UsuarioImplDAO;
+import com.usta.utils.Ventana;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TableColumn;
@@ -128,13 +130,19 @@ public class UsuarioController {
         Usuario nuevoUsuario = new Usuario(documento, nombres, apellidos, correo);
         try {
             usuarioDao.add(nuevoUsuario);
+            usuariosDataList.add(nuevoUsuario);
+            usuariosTable.setItems(usuariosDataList);
+            limpiarCampos();
+
         } catch (SQLException e) {
-            System.err.println("Error al agregar Usuario!");
-            e.printStackTrace();
+            Ventana ventana= new Ventana(
+                "Error!",
+                "Insertar en interfaz",
+                e.getMessage(),
+                AlertType.ERROR);
+            
         }
-        usuariosDataList.add(nuevoUsuario);
-        usuariosTable.setItems(usuariosDataList);
-        limpiarCampos();
+        
     }
 
     @FXML

@@ -12,6 +12,8 @@ import java.util.List;
 import com.usta.models.usuario.UsuarioImplDAO;
 import com.usta.utils.*;
 
+import javafx.scene.control.Alert.AlertType;
+
 public class MascotaImplDAO implements GenericDAO<Mascota> {
 
     private Connection connection;
@@ -33,6 +35,17 @@ public class MascotaImplDAO implements GenericDAO<Mascota> {
             stmt.setInt(3, obj.getCuidador().getId());
             
             stmt.executeUpdate();
+            Ventana ventana= new Ventana(
+                "Exito!",
+                "Insertar en BD",
+                "Se agregó la mascota correctamente",
+                AlertType.INFORMATION);
+        }catch (Exception e) {
+            Ventana ventana= new Ventana(
+                "Error!",
+                "Insertar en BD",
+                e.getMessage(),
+                AlertType.ERROR);
         }
 
     }

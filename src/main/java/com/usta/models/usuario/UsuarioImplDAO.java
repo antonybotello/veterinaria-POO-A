@@ -12,6 +12,8 @@ import java.util.List;
 
 import com.usta.utils.*;
 
+import javafx.scene.control.Alert.AlertType;
+
 public class UsuarioImplDAO implements GenericDAO<Usuario> {
 
     private Connection connection;
@@ -31,6 +33,17 @@ public class UsuarioImplDAO implements GenericDAO<Usuario> {
             stmt.setString(3, obj.getApellidos());
             stmt.setString(4, obj.getCorreo());
             stmt.executeUpdate();
+            Ventana ventana= new Ventana(
+                "Exito!",
+                "Insertar en BD",
+                "Se agregó el usuario correctamente",
+                AlertType.INFORMATION);
+        }catch (Exception e) {
+            Ventana ventana= new Ventana(
+                "Error!",
+                "Insertar en BD",
+                e.getMessage(),
+                AlertType.ERROR);
         }
 
     }
