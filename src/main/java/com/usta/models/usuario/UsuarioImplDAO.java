@@ -107,7 +107,7 @@ public class UsuarioImplDAO implements GenericDAO<Usuario> {
     }
  
     public Boolean isUsuario(String doc, String pass) throws SQLException {
-        String query = "SELECT * FROM usuarios WHERE documento=?,clave=?";
+        String query = "SELECT * FROM usuarios WHERE documento=? AND clave=?";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setString(1, doc);
             stmt.setString(2, pass);

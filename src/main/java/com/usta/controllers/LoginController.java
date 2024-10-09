@@ -17,12 +17,12 @@ public class LoginController {
         private TextField usuarioField;
         
         @FXML
-        private PasswordField claveField;
+        private PasswordField passField;
         
     @FXML
     private void switchToMenu() throws IOException {
         try {
-            if (usuarioDao.isUsuario(usuarioField.getText(),claveField.getText()))
+            if (usuarioDao.isUsuario(usuarioField.getText(),passField.getText()))
             App.setRoot("secondary");
         } catch (SQLException e) {
             // TODO Auto-generated catch block
